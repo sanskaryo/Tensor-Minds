@@ -1,0 +1,34 @@
+<!-- Homepage template -->
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Welcome to the All-In-One Intercom & Translation Platform</h2>
+    <p>This platform helps in communication and real-time translation for the deaf and mute community.</p>
+    <div class="feature-grid">
+        <div class="feature">
+            <h3>Sign to Audio</h3>
+            <p>Indian Sign language keyboard</p>
+            <a href="{{ url_for('sign_to_audio') }}" class="btn">Try Now</a>
+        </div>
+        <div class="feature">
+            <h3>Audio to Sign</h3>
+            <p>Translate audio or text into sign language gestures.</p>
+            <a href="{{ url_for('audio_to_sign') }}" class="btn">Try Now</a>
+        </div>
+        <div class="feature">
+            <h3>Vernacular Translation</h3>
+            <p>Translate Indian languages in real-time.</p>
+            <a href="{{ url_for('translation') }}" class="btn">Try Now</a>
+        </div>
+        <div class="feature">
+            <h3>Live ISL to Audio</h3>
+            <p>Get live translation from ISL to audio.</p>
+            <a href="{{ url_for('live_isl_audio') }}" class="btn">Try Now</a>
+        </div>
+        <div class="feature">
+            <h3>Video Call & Chat</h3>
+            <p>Engage in video calls and chats with translation support.</p>
+            <a href="{{ url_for('video_call') }}" class="btn">Try Now</a>
+        </div>
+    </div>
+{% endblock %}

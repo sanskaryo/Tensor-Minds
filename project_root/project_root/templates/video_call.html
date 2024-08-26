@@ -1,0 +1,17 @@
+<!-- Video Call & Chat Rooms page -->
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Video Call & Chat Rooms</h2>
+    <div id="video-call-interface">
+        <video id="localVideo" autoplay muted></video>
+        <video id="remoteVideo" autoplay></video>
+    </div>
+    <div id="chat-area">
+        <textarea id="chat-input" placeholder="Type your message..."></textarea>
+        <button id="send-chat">Send</button>
+        <div id="chat-messages">
+            <!-- Display chat messages here -->
+        </div>
+    </div>
+{% endblock %}
