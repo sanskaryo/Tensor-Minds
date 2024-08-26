@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section>
+    <h1>Text Translation</h1>
+    <div>
+        <div>
+            <select id="source-lang">
+                <option value="en">English</option>
+                <option value="hi">Hindi</option>
+                <option value="ta">Tamil</option>
+                <option value="te">Telugu</option>
+                <option value="mr">Marathi</option>
+                <option value="gu">Gujarati</option>
+                <option value="kn">Kannada</option>
+                <option value="ml">Malayalam</option>
+                <option value="or">Odia (Oriya)</option>
+                <option value="pa">Punjabi</option>
+                <option value="bn">Bengali</option>
+                <!-- Add more languages as needed -->
+            </select>
+            <span>to</span>
+            <select id="target-lang">
+                <option value="en">English</option>
+                <option value="hi">Hindi</option>
+                <option value="ta">Tamil</option>
+                <option value="te">Telugu</option>
+                <option value="mr">Marathi</option>
+                <option value="gu">Gujarati</option>
+                <option value="kn">Kannada</option>
+                <option value="ml">Malayalam</option>
+                <option value="or">Odia (Oriya)</option>
+                <option value="pa">Punjabi</option>
+                <option value="bn">Bengali</option>
+                <!-- Add more languages as needed -->
+            </select>
+        </div>
+        <button id="translate-btn">Translate</button>
+    </div>
+    <div id="translated-text"></div>
+</section>
+
+<section>
+    <h1>Speech to Text Translation</h1>
+    <div>
+        <form id="speech-to-text-form" method="POST" enctype="multipart/form-data">
+            <input type="file" name="file" accept="audio/*">
+            <select id="speech-target-lang" name="target_lang">
+                <option value="en">English</option>
+                <option value="hi">Hindi</option>
+                <option value="ta">Tamil</option>
+                <option value="te">Telugu</option>
+                <option value="mr">Marathi</option>
+                <option value="gu">Gujarati</option>
+                <option value="kn">Kannada</option>
+                <option value="ml">Malayalam</option>
+                <option value="or">Odia (Oriya)</option>
+                <option value="pa">Punjabi</option>
+                <option value="bn">Bengali</option>
+                <!-- Add more languages as needed -->
+            </select>
+            <button type="submit">Convert and Translate</button>
+        </form>
+    </div>
+    <div id="speech-result">
+        <p>Original Text: <span id="speech-original-text"></span></p>
+        <p>Translated Text: <span id="speech-translated-text"></span></p>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='js/scripts-trans.js') }}"></script>
+    <script>
+        document.getElementById('speech-to-text-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var formData = new FormData(this);
+            fetch('/speech-to-text', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('speech-original-text').innerText = data.text;
+                document.getElementById('speech-translated-text').innerText = data.translated_text;
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+{% endblock %}
