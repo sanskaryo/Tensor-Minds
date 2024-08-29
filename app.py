@@ -31,7 +31,7 @@ def live_isl_audio():
 @app.route('/video-call')
 def video_call():
     return render_template('videoapp.html')
-
+    
 @app.route('/translate', methods=['POST'])
 def translate():
     data = request.json
@@ -50,4 +50,4 @@ if __name__ == '__main__':
     if not os.path.exists('uploads'):
         os.makedirs('uploads')
     
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0')
