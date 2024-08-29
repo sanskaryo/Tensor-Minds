@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All-In-One Intercom & Translation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>All-In-One Intercom & Translation</h1>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('index') }}">Home</a></li>
+                <li><a href="{{ url_for('sign_to_audio') }}">Sign language to audio keyboard</a></li>
+                <li><a href="{{ url_for('audio_to_sign') }}">Audio to Sign</a></li>
+                <li><a href="{{ url_for('translation') }}">Vernacular Translation</a></li>
+                <li><a href="{{ url_for('live_isl_audio') }}">Live ISL to Audio</a></li>
+                <li><a href="{{ url_for('video_call') }}">Video Call & Chat</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    
+    <footer>
+        <p>&copy; 2024 Made with ❤️ By team tensor Minds. All rights reserved.</p>
+        <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Contact Us</a>
+            <a href="#">Support</a>
+        </div>
+    </footer>
+   
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/scripts-trans.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

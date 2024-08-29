@@ -1,0 +1,184 @@
+<!-- Sign Language Keyboard to Audio page -->
+{% extends 'base.html' %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISL Keyboard</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .heading {
+            font-size: 36px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        #keyboard {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            max-width: 800px;
+        }
+
+        .symbol-button {
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            background-size: cover;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .symbol-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        #output {
+            font-size: 28px;
+            margin-top: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        #wordInput {
+            font-size: 24px;
+            margin-top: 10px;
+            padding: 10px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+            max-width: 300px;
+            text-align: center;
+        }
+
+        .button-group {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .action-button, .space-button {
+            background-color: #2196F3;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s;
+        }
+
+        .space-button {
+            background-color: #FFC107;
+        }
+
+        .action-button:hover, .space-button:hover {
+            background-color: #1976D2;
+        }
+
+        .send-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .send-button:hover {
+            background-color: #45a049;
+        }
+
+        .clear-button, .delete-button {
+            background-color: #f44336;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s;
+        }
+
+        .clear-button:hover, .delete-button:hover {
+            background-color: #e53935;
+        }
+    </style>
+</head>
+<body>
+    <div class="heading">Indian Sign Language Keyboard</div>
+    <div id="keyboard"></div>
+    <div id="output"></div>
+    <input type="text" id="wordInput" readonly>
+    <div class="button-group">
+        <button class="send-button" onclick="speakWord()">Hear this!</button>
+        <button class="space-button" onclick="addSymbol(' ')">Space</button>
+        <button class="clear-button" onclick="clearWord()">Clear</button>
+        <button class="delete-button" onclick="deleteLastChar()">Backspace</button>
+    </div>
+    <script>
+        let word = '';
+
+        const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const keyboardDiv = document.getElementById('keyboard');
+
+        letters.split('').forEach(letter => {
+            const button = document.createElement('button');
+            button.className = 'symbol-button';
+            button.style.backgroundImage = `url('/static/letters/${letter.toLowerCase()}.jpg')`;
+            button.onclick = () => addSymbol(letter);
+            keyboardDiv.appendChild(button);
+        });
+
+        function addSymbol(letter) {
+            word += letter;
+            document.getElementById('wordInput').value = word;
+            document.getElementById('output').innerText = word;
+        }
+
+        function clearWord() {
+            word = '';
+            document.getElementById('wordInput').value = '';
+            document.getElementById('output').innerText = '';
+        }
+
+        function deleteLastChar() {
+            word = word.slice(0, -1);
+            document.getElementById('wordInput').value = word;
+            document.getElementById('output').innerText = word;
+        }
+
+        function speakWord() {
+            let msg = new SpeechSynthesisUtterance(word);
+            window.speechSynthesis.speak(msg);
+        }
+    </script>
+</body>
+</html>
+{% endblock %}
