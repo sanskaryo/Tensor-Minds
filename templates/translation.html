@@ -1,90 +1,85 @@
 {% extends "base.html" %}
 
 {% block content %}
-<section>
-    <h1>Text Translation</h1>
-    <div>
-        <div>
-            <select id="source-lang">
-                <option value="en">English</option>
-                <option value="hi">Hindi</option>
-                <option value="ta">Tamil</option>
-                <option value="te">Telugu</option>
-                <option value="mr">Marathi</option>
-                <option value="gu">Gujarati</option>
-                <option value="kn">Kannada</option>
-                <option value="ml">Malayalam</option>
-                <option value="or">Odia (Oriya)</option>
-                <option value="pa">Punjabi</option>
-                <option value="bn">Bengali</option>
-                <!-- Add more languages as needed -->
-            </select>
-            <span>to</span>
-            <select id="target-lang">
-                <option value="en">English</option>
-                <option value="hi">Hindi</option>
-                <option value="ta">Tamil</option>
-                <option value="te">Telugu</option>
-                <option value="mr">Marathi</option>
-                <option value="gu">Gujarati</option>
-                <option value="kn">Kannada</option>
-                <option value="ml">Malayalam</option>
-                <option value="or">Odia (Oriya)</option>
-                <option value="pa">Punjabi</option>
-                <option value="bn">Bengali</option>
-                <!-- Add more languages as needed -->
-            </select>
-        </div>
-        <button id="translate-btn">Translate</button>
-    </div>
-    <div id="translated-text"></div>
-</section>
-
-<section>
-    <h1>Speech to Text Translation</h1>
-    <div>
-        <form id="speech-to-text-form" method="POST" enctype="multipart/form-data">
-            <input type="file" name="file" accept="audio/*">
-            <select id="speech-target-lang" name="target_lang">
-                <option value="en">English</option>
-                <option value="hi">Hindi</option>
-                <option value="ta">Tamil</option>
-                <option value="te">Telugu</option>
-                <option value="mr">Marathi</option>
-                <option value="gu">Gujarati</option>
-                <option value="kn">Kannada</option>
-                <option value="ml">Malayalam</option>
-                <option value="or">Odia (Oriya)</option>
-                <option value="pa">Punjabi</option>
-                <option value="bn">Bengali</option>
-                <!-- Add more languages as needed -->
-            </select>
-            <button type="submit">Convert and Translate</button>
+<section style="max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f9f9f9; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+    <h1 style="text-align: center; color: #333;">Text Translation</h1>
+    <div style="margin-top: 20px;">
+        <form id="text-translation-form" style="display: flex; flex-direction: column; gap: 15px;">
+            <textarea id="source-text" name="text" placeholder="Enter text to translate" 
+                      style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; height: 120px; resize: none; font-size: 16px;"></textarea>
+            <div style="display: flex; justify-content: space-between; gap: 10px;">
+                <select id="source-lang" name="source_lang" 
+                        style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px;">
+                    <option value="en">English</option>
+                    <option value="hi">Hindi</option>
+                    <option value="ta">Tamil</option>
+                    <option value="te">Telugu</option>
+                    <option value="mr">Marathi</option>
+                    <option value="gu">Gujarati</option>
+                    <option value="kn">Kannada</option>
+                    <option value="ml">Malayalam</option>
+                    <option value="or">Odia (Oriya)</option>
+                    <option value="pa">Punjabi</option>
+                    <option value="bn">Bengali</option>
+                </select>
+                <span style="align-self: center; font-size: 18px; font-weight: bold;">to</span>
+                <select id="target-lang" name="target_lang" 
+                        style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px;">
+                    <option value="en">English</option>
+                    <option value="hi">Hindi</option>
+                    <option value="ta">Tamil</option>
+                    <option value="te">Telugu</option>
+                    <option value="mr">Marathi</option>
+                    <option value="gu">Gujarati</option>
+                    <option value="kn">Kannada</option>
+                    <option value="ml">Malayalam</option>
+                    <option value="or">Odia (Oriya)</option>
+                    <option value="pa">Punjabi</option>
+                    <option value="bn">Bengali</option>
+                </select>
+            </div>
+            <button type="submit" id="translate-btn" 
+                    style="padding: 10px; background-color: #007BFF; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer;">
+                Translate
+            </button>
         </form>
     </div>
-    <div id="speech-result">
-        <p>Original Text: <span id="speech-original-text"></span></p>
-        <p>Translated Text: <span id="speech-translated-text"></span></p>
-    </div>
+    <div id="translated-text" style="margin-top: 20px; padding: 15px; background-color: #fff; border: 1px solid #ddd; border-radius: 4px; font-size: 18px; min-height: 50px;"></div>
+    <button id="play-audio-button" style="margin-top: 15px; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; font-size: 16px; display: none; cursor: pointer;">
+        Play Audio
+    </button>
 </section>
 {% endblock %}
 
 {% block scripts %}
-    <script src="{{ url_for('static', filename='js/scripts-trans.js') }}"></script>
-    <script>
-        document.getElementById('speech-to-text-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            var formData = new FormData(this);
-            fetch('/speech-to-text', {
-                method: 'POST',
-                body: formData
+<script>
+    document.getElementById('text-translation-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        var sourceText = document.getElementById('source-text').value;
+        var sourceLang = document.getElementById('source-lang').value;
+        var targetLang = document.getElementById('target-lang').value;
+
+        fetch('{{ url_for("translation.translate") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                text: sourceText,
+                source_lang: sourceLang,
+                target_lang: targetLang
             })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('speech-original-text').innerText = data.text;
-                document.getElementById('speech-translated-text').innerText = data.translated_text;
-            })
-            .catch(error => console.error('Error:', error));
-        });
-    </script>
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('translated-text').innerText = data.translated_text;
+            document.getElementById('play-audio-button').style.display = 'block';
+            document.getElementById('play-audio-button').onclick = function() {
+                var audio = new Audio(data.audio_url);
+                audio.play();
+            };
+        })
+        .catch(error => console.error('Error:', error));
+    });
+</script>
 {% endblock %}

@@ -1,11 +1,17 @@
 import os
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_file
 from googletrans import Translator
-from live_translation import live_translation_bp
+import pyttsx3
+engine = pyttsx3.init()
+from io import BytesIO
+from translation import translation_bp
+
 
 app = Flask(__name__)
-app.register_blueprint(live_translation_bp, url_prefix='/live-translation')
+
 app.config['SECRET_KEY'] = 'secret!'
+
+app.register_blueprint(translation_bp, url_prefix='/translation')
 
 # Route definitions
 @app.route('/')
@@ -39,12 +45,24 @@ def translate():
     source_lang = data.get('source_lang')
     target_lang = data.get('target_lang')
     translated_text = translate_text(source_text, source_lang, target_lang)
-    return jsonify({'translated_text': translated_text})
+    return jsonify({'translated_text': translated_text, 'audio_url': '/translation/audio'})
 
 def translate_text(text, source_lang, target_lang):
     translator = Translator()
     result = translator.translate(text, src=source_lang, dest=target_lang)
     return result.text
+
+@app.route('/text-to-speech', methods=['POST'])
+def text_to_speech():
+    text = request.form.get('text')
+    if text:
+        engine = pyttsx3.init()
+        audio_file = BytesIO()
+        engine.save_to_file(text, audio_file)
+        engine.runAndWait()
+        audio_file.seek(0)
+        return send_file(audio_file, mimetype='audio/mp3', as_attachment=True, download_name='speech.mp3')
+    return jsonify({'status': 'error', 'message': 'No text provided.'})
 
 if __name__ == '__main__':
     if not os.path.exists('uploads'):

@@ -1,69 +1,45 @@
-from flask import Flask, render_template, request, jsonify
+import os
+from flask import Blueprint, request, jsonify, send_file
 from googletrans import Translator
+from gtts import gTTS
+from io import BytesIO
+import uuid
 
-app = Flask(__name__)
+translation_bp = Blueprint('translation', __name__)
 
-def translate_text(text, source_lang, target_lang):
-    translator = Translator()
-    result = translator.translate(text, src=source_lang, dest=target_lang)
-    return result.text
-
-@app.route('/')
-def index():
-    return render_template('index.html')
-
-@app.route('/translate', methods=['POST'])
+@translation_bp.route('/translate', methods=['POST'])
 def translate():
     data = request.json
     source_text = data.get('text')
     source_lang = data.get('source_lang')
     target_lang = data.get('target_lang')
-    translated_text = translate_text(source_text, source_lang, target_lang)
-    return jsonify({'translated_text': translated_text})
+    
+    translator = Translator()
+    translated = translator.translate(source_text, src=source_lang, dest=target_lang)
+    translated_text = translated.text
+    
+    # Convert translated text to audio
+    tts = gTTS(translated_text, lang=target_lang)
+    audio_file = BytesIO()
+    tts.write_to_fp(audio_file)
+    audio_file.seek(0)
+    
+    # Ensure the temp_audio directory exists
+    if not os.path.exists('temp_audio'):
+        os.makedirs('temp_audio')
+    
+    # Save the audio file to a temporary location
+    audio_filename = f"{uuid.uuid4()}.mp3"
+    audio_path = os.path.join('temp_audio', audio_filename)
+    with open(audio_path, 'wb') as f:
+        f.write(audio_file.read())
+    
+    return jsonify({
+        'translated_text': translated_text,
+        'audio_url': f'/translation/audio/{audio_filename}'
+    })
 
-if __name__ == '__main__':
-    app.run(debug=True)
-
-
-
-
-
-
-
-
-
-
-# # Python script for Real-Time Translation
-# from flask import Flask, request, jsonify
-# from google.cloud import speech_v1p1beta1 as speech
-# from google.cloud import translate_v2 as translate
-# import io
-
-# app = Flask(__name__)
-
-# @app.route('/translate', methods=['POST'])
-# def translate_audio():
-#     audio_file = request.files['audio']
-#     input_lang = request.form['input_lang']
-#     output_lang = request.form['output_lang']
-
-#     # Convert audio to text
-#     client = speech.SpeechClient()
-#     audio = speech.RecognitionAudio(content=audio_file.read())
-#     config = speech.RecognitionConfig(
-#         encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
-#         sample_rate_hertz=16000,
-#         language_code=input_lang
-#     )
-
-#     response = client.recognize(config=config, audio=audio)
-#     text = response.results[0].alternatives[0].transcript
-
-#     # Translate text
-#     translate_client = translate.Client()
-#     translation = translate_client.translate(text, target_language=output_lang)
-
-#     return jsonify({'translation': translation['translatedText']})
-
-# if __name__ == '__main__':
-#     app.run(debug=True)
+@translation_bp.route('/audio/<filename>')
+def audio(filename):
+    audio_path = os.path.join('temp_audio', filename)
+    return send_file(audio_path, mimetype='audio/mp3')
