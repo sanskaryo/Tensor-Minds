@@ -2,10 +2,27 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h2>Audio/Text to ISL</h2>
-    <textarea id="text-input" placeholder="Enter text here..."></textarea>
-    <button id="convert-to-sign">Convert to Sign Language</button>
-    <div id="sign-display">
-        <!-- Display sign language GIFs or videos here -->
+<div class="container my-5">
+    <h2 class="text-center mb-4">Audio/Text to ISL</h2>
+    <div class="text-center">
+        <button id="start-recognition" class="btn btn-primary">Start Speech Recognition</button>
     </div>
+    <div id="sign-display" class="mt-4 text-center">
+        <!-- Display sign language GIFs here -->
+    </div>
+</div>
+
+<script>
+document.getElementById('start-recognition').addEventListener('click', function() {
+    fetch('/recognize_speech')
+        .then(response => response.json())
+        .then(data => {
+            if (data.gif_path) {
+                document.getElementById('sign-display').innerHTML = `<img src="${data.gif_path}" alt="Sign Language GIF">`;
+            } else {
+                document.getElementById('sign-display').innerHTML = '<p>No matching GIF found.</p>';
+            }
+        });
+});
+</script>
 {% endblock %}

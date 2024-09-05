@@ -2,6 +2,8 @@ import os
 from flask import Flask, render_template, request, jsonify, send_file
 from googletrans import Translator
 import pyttsx3
+import logging
+import subprocess
 engine = pyttsx3.init()
 from io import BytesIO
 from translation import translation_bp
@@ -12,7 +14,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 
 app.register_blueprint(translation_bp, url_prefix='/translation')
-
+logging.basicConfig(level=logging.DEBUG)
 # Route definitions
 @app.route('/')
 def index():
@@ -25,6 +27,21 @@ def sign_to_audio():
 @app.route('/audio-to-sign')
 def audio_to_sign():
     return render_template('audio_to_sign.html')
+
+@app.route('/recognize_speech')
+def recognize_speech_route():
+    logging.debug("Starting speech recognition")
+    result = subprocess.run(['python', 'audio_to_sign.py'], capture_output=True, text=True)
+    output = result.stdout.strip()
+    logging.debug(f"Script output: {output}")
+    gif_path = None
+    letter_image_paths = []
+    if "Displaying GIF" in output:
+        gif_path = output.split("Displaying GIF: ")[1]
+    elif "Displaying letter images" in output:
+        letter_image_paths = output.split("Displaying letter images: ")[1].split(', ')
+    return jsonify({'gif_path': gif_path, 'letter_image_paths': letter_image_paths})
+
 
 @app.route('/translation')
 def translation():
